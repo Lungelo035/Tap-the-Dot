@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified Tap the Dot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            touch-action: manipulation;
+        }
+        #game-area {
+            width: 300px;
+            height: 300px;
+            background-color: #ffffff;
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        #dot {
+            background-color: #ff4500;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #score, #timer {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        #start-button, #difficulty {
+            font-size: 16px;
+            padding: 8px 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simplified Tap the Dot</h1>
+    <div id="score">Score: 0</div>
+    <div id="timer">Time: 30s</div>
+    <div id="game-area">
+        <div id="dot"></div>
+    </div>
+    <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+    </select>
+    <button id="start-button">Start Game</button>
+
+    <script>
+        const gameArea = document.getElementById('game-area');
+        const dot = document.getElementById('dot');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const startButton = document.getElementById('start-button');
+        const difficultySelect = document.getElementById('difficulty');
+
+        let score = 0;
+        let timeLeft = 30;
+        let gameInterval;
+        let dotSize = 30;
+        let moveInterval = 1000;
+
+        function setDifficulty() {
+            const difficulty = difficultySelect.value;
+            switch (difficulty) {
+                case 'easy':
+                    dotSize = 30;
+                    moveInterval = 1000;
+                    break;
+                case 'medium':
+                    dotSize = 25;
+                    moveInterval = 800;
+                    break;
+                case 'hard':
+                    dotSize = 20;
+                    moveInterval = 600;
+                    break;
+            }
+            dot.style.width = `${dotSize}px`;
+            dot.style.height = `${dotSize}px`;
+        }
+
+        function moveDot() {
+            const maxX = gameArea.clientWidth - dotSize;
+            const maxY = gameArea.clientHeight - dotSize;
+            dot.style.left = Math.random() * maxX + 'px';
+            dot.style.top = Math.random() * maxY + 'px';
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timerDisplay.textContent = `Time: ${timeLeft}s`;
+            if (timeLeft === 0) {
+                endGame();
+            }
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.textContent = 'Score: 0';
+            timerDisplay.textContent = 'Time: 30s';
+            startButton.disabled = true;
+            difficultySelect.disabled = true;
+            dot.style.display = 'block';
+            setDifficulty();
+            moveDot();
+            gameInterval = setInterval(() => {
+                moveDot();
+                updateTimer();
+            }, moveInterval);
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            dot.style.display = 'none';
+            startButton.disabled = false;
+            difficultySelect.disabled = false;
+            alert(`Game Over! Your score: ${score}`);
+        }
+
+        dot.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            moveDot();
+        });
+
+        startButton.addEventListener('click', startGame);
+        difficultySelect.addEventListener('change', setDifficulty);
+    </script>
+</body>
+</html>
