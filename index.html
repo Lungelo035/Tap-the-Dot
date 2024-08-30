@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tap the Dot Deluxe</title>
+    <title>Tap The Dot Deluxe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -13,7 +14,7 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: #FFD700; /* Fun golden yellow background */
             touch-action: manipulation;
         }
         .container {
@@ -21,21 +22,27 @@
             background-color: #ffffff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 90%;
         }
         h1 {
-            color: #333;
+            font-family: 'Bangers', cursive;
+            color: #FF6347; /* Tomato color for the title */
             margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
         #game-area {
             width: 300px;
             height: 300px;
-            background-color: #e0e0e0;
+            background-color: #ffffff;
             border: 2px solid #333;
             position: relative;
             overflow: hidden;
             border-radius: 5px;
             margin: 10px auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
         #dot {
             background-color: #ff4500;
@@ -47,6 +54,7 @@
         #score, #timer, #high-score {
             font-size: 18px;
             margin: 10px 0;
+            color: #333;
         }
         #start-button, #reset-score, #difficulty {
             font-size: 16px;
@@ -80,11 +88,18 @@
             font-style: italic;
             color: #666;
         }
+        #game-description, #creator-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+            max-width: 300px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Tap the Dot Deluxe</h1>
+        <h1>Tap The Dot Deluxe</h1>
         <div id="high-score">High Score: 0</div>
         <div id="score">Score: 0</div>
         <div id="timer">Time: 30s</div>
@@ -102,7 +117,7 @@
         <button id="reset-score">Reset High Score</button>
     </div>
     <div id="ad-container">
-        <script type="text/javascript">
+       <script type="text/javascript">
         atOptions = {
             'key' : 'd2f8f2ff1fcf4219949058a72cbd94f2',
             'format' : 'iframe',
@@ -118,6 +133,12 @@
         });
     </script>
     </div>
+    <div id="game-description">
+        Tap the moving dot as many times as you can in 30 seconds! Choose your difficulty and challenge yourself to beat your high score in each level.
+    </div>
+    <div id="creator-info">
+        Created by Lungelo Shandu
+    </div>
 
     <script>
         const gameArea = document.getElementById('game-area');
@@ -130,17 +151,25 @@
         const difficultySelect = document.getElementById('difficulty');
 
         let score = 0;
-        let highScore = parseInt(localStorage.getItem('highScore')) || 0;
         let timeLeft = 30;
         let gameInterval;
         let dotSize = 30;
         let moveInterval = 1000;
+        let currentDifficulty = 'easy';
+
+        let highScores = JSON.parse(localStorage.getItem('highScores')) || {
+            snail: 0,
+            easy: 0,
+            medium: 0,
+            hard: 0,
+            insane: 0
+        };
 
         updateHighScoreDisplay();
 
         function setDifficulty() {
-            const difficulty = difficultySelect.value;
-            switch (difficulty) {
+            currentDifficulty = difficultySelect.value;
+            switch (currentDifficulty) {
                 case 'snail':
                     dotSize = 35;
                     moveInterval = 1200;
@@ -164,6 +193,7 @@
             }
             dot.style.width = `${dotSize}px`;
             dot.style.height = `${dotSize}px`;
+            updateHighScoreDisplay();
         }
 
         function moveDot() {
@@ -202,23 +232,23 @@
             dot.style.display = 'none';
             startButton.disabled = false;
             difficultySelect.disabled = false;
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('highScore', highScore);
+            if (score > highScores[currentDifficulty]) {
+                highScores[currentDifficulty] = score;
+                localStorage.setItem('highScores', JSON.stringify(highScores));
                 updateHighScoreDisplay();
             }
-            alert(`Game Over! Your score: ${score}`);
+            alert(`Game Over! Your score is: ${score}`);
         }
 
         function updateHighScoreDisplay() {
-            highScoreDisplay.textContent = `High Score: ${highScore}`;
+            highScoreDisplay.textContent = `High Score (${currentDifficulty}): ${highScores[currentDifficulty]}`;
         }
 
         function resetHighScore() {
-            highScore = 0;
-            localStorage.setItem('highScore', highScore);
+            highScores[currentDifficulty] = 0;
+            localStorage.setItem('highScores', JSON.stringify(highScores));
             updateHighScoreDisplay();
-            alert('High score has been reset!');
+            alert(`High score for ${currentDifficulty} difficulty has been reset!`);
         }
 
         dot.addEventListener('click', () => {
