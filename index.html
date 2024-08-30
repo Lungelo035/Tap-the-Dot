@@ -3,26 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tap the Dot</title>
+    <title>Tap the Dot Deluxe</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
             touch-action: manipulation;
         }
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
         #game-area {
             width: 300px;
             height: 300px;
-            background-color: #ffffff;
+            background-color: #e0e0e0;
             border: 2px solid #333;
             position: relative;
             overflow: hidden;
+            border-radius: 5px;
+            margin: 10px auto;
         }
         #dot {
             background-color: #ff4500;
@@ -31,49 +44,107 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        #score, #timer {
+        #score, #timer, #high-score {
             font-size: 18px;
-            margin: 5px 0;
+            margin: 10px 0;
         }
-        #start-button, #difficulty {
+        #start-button, #reset-score, #difficulty {
             font-size: 16px;
             padding: 8px 16px;
-            margin-top: 10px;
+            margin: 10px 5px;
             cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        #start-button:hover, #reset-score:hover {
+            background-color: #45a049;
+        }
+        #difficulty {
+            background-color: #008CBA;
+        }
+        #difficulty:hover {
+            background-color: #007B9A;
+        }
+        #ad-container {
+            margin-top: 20px;
+            width: 320px;
+            height: 50px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-style: italic;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <h1>Tap the Dot</h1>
-    <div id="score">Score: 0</div>
-    <div id="timer">Time: 30s</div>
-    <div id="game-area">
-        <div id="dot"></div>
+    <div class="container">
+        <h1>Tap the Dot Deluxe</h1>
+        <div id="high-score">High Score: 0</div>
+        <div id="score">Score: 0</div>
+        <div id="timer">Time: 30s</div>
+        <div id="game-area">
+            <div id="dot"></div>
+        </div>
+        <select id="difficulty">
+            <option value="snail">Snail's Pace</option>
+            <option value="easy">Easy Breezy</option>
+            <option value="medium">Middle Ground</option>
+            <option value="hard">Hardcore Tapper</option>
+            <option value="insane">Insane Reflexes</option>
+        </select>
+        <button id="start-button">Start Game</button>
+        <button id="reset-score">Reset High Score</button>
     </div>
-    <select id="difficulty">
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-    </select>
-    <button id="start-button">Start Game</button>
+    <div id="ad-container">
+        <script type="text/javascript">
+        atOptions = {
+            'key' : 'd2f8f2ff1fcf4219949058a72cbd94f2',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+        };
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const script = document.createElement('script');
+            script.src = "//www.topcreativeformat.com/d2f8f2ff1fcf4219949058a72cbd94f2/invoke.js";
+            script.async = true;
+            document.getElementById('ad-container').appendChild(script);
+        });
+    </script>
+    </div>
 
     <script>
         const gameArea = document.getElementById('game-area');
         const dot = document.getElementById('dot');
         const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('high-score');
         const timerDisplay = document.getElementById('timer');
         const startButton = document.getElementById('start-button');
+        const resetScoreButton = document.getElementById('reset-score');
         const difficultySelect = document.getElementById('difficulty');
 
         let score = 0;
+        let highScore = parseInt(localStorage.getItem('highScore')) || 0;
         let timeLeft = 30;
         let gameInterval;
         let dotSize = 30;
         let moveInterval = 1000;
 
+        updateHighScoreDisplay();
+
         function setDifficulty() {
             const difficulty = difficultySelect.value;
             switch (difficulty) {
+                case 'snail':
+                    dotSize = 35;
+                    moveInterval = 1200;
+                    break;
                 case 'easy':
                     dotSize = 30;
                     moveInterval = 1000;
@@ -85,6 +156,10 @@
                 case 'hard':
                     dotSize = 20;
                     moveInterval = 600;
+                    break;
+                case 'insane':
+                    dotSize = 15;
+                    moveInterval = 400;
                     break;
             }
             dot.style.width = `${dotSize}px`;
@@ -127,7 +202,23 @@
             dot.style.display = 'none';
             startButton.disabled = false;
             difficultySelect.disabled = false;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore);
+                updateHighScoreDisplay();
+            }
             alert(`Game Over! Your score: ${score}`);
+        }
+
+        function updateHighScoreDisplay() {
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
+        }
+
+        function resetHighScore() {
+            highScore = 0;
+            localStorage.setItem('highScore', highScore);
+            updateHighScoreDisplay();
+            alert('High score has been reset!');
         }
 
         dot.addEventListener('click', () => {
@@ -138,16 +229,7 @@
 
         startButton.addEventListener('click', startGame);
         difficultySelect.addEventListener('change', setDifficulty);
+        resetScoreButton.addEventListener('click', resetHighScore);
     </script>
-    <script type="text/javascript">
-	atOptions = {
-		'key' : 'd2f8f2ff1fcf4219949058a72cbd94f2',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.topcreativeformat.com/d2f8f2ff1fcf4219949058a72cbd94f2/invoke.js"></script>
 </body>
 </html>
